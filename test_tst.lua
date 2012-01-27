@@ -7,6 +7,8 @@ t:add("ff", "kent - ff")
 t:add("pärlor", "kent - pärlor")
 t:add("foo", "kent - foo")
 
+print("TST:\n" .. tostring(t))
+
 print("exact search: " .. t:search("kent"))
 
 for value in t:prefix_search("pä") do

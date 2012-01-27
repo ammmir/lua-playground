@@ -126,31 +126,13 @@ function TernarySearchTree(ch)
   -- convenience methods
   setmetatable(object, {
     __tostring = function(t)
-      stack = {}
       local p = t
       local s = ""
       
       if p == nil then return "<empty table>" end
       
-      while p do
-        if p.right then table.insert(stack, p.right) end
-        if p.middle then table.insert(stack, p.middle) end
-        if p.left then table.insert(stack, p.left) end
-        
-        if p.value then
-          if type(p.value) == "table" then
-            s = s .. "  table\n"
-            for _, v in pairs(p.value) do
-              s = s .. "    " .. v .. "\n"
-            end
-          else
-            s = s .. "  " .. p.value .. "\n"
-          end
-        end
-        
-        if stack == nil then break end
-        
-        p = table.remove(stack)
+      for value in coroutine.wrap(function() as_list(p) end) do
+        s = s .. "  " .. tostring(value) .. "\n"
       end
       
       return s
