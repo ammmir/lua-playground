@@ -1,6 +1,6 @@
 tst = require("tst")
 
-local t = tst.TernarySearchTree()
+local t = tst.TernarySearchTree:new()
 
 t:add("kent", "all songs")
 t:add("ff", "kent - ff")

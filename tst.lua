@@ -36,108 +36,102 @@ local function as_list(p)
   --return list
 end
 
-function TernarySearchTree(ch)
-  local object = {
-    splitchar = ch,
-    left = nil,
-    middle = nil,
-    right = nil,
-    value = nil,
+TernarySearchTree = {}
+
+TernarySearchTree_mt = {
+  __index = TernarySearchTree,
+  __tostring = function(t)
+    local p = t
+    local s = ""
     
-    add = function(self, key, value)
-      return self:insert(self, key, value)
-    end,
+    if p == nil then return "<empty table>" end
     
-    insert = function(self, p, key, value)
-      local c = key:sub(1, 1)
-      
-      if p == nil then
-        p = TernarySearchTree(c)
-      elseif p.splitchar == nil then
-        p.splitchar = c
-      end
-      
-      if c < p.splitchar then
-        p.left = self:insert(p.left, key, value)
-      elseif c == p.splitchar then
-        key = key:sub(2)
-        if key ~= "" then
-          p.middle = self:insert(p.middle, key, value)
-        else
-          p.value = value
-        end
-      else
-        p.right = self:insert(p.right, key, value)
-      end
-      
-      return p
-    end,
+    for value in coroutine.wrap(function() as_list(p) end) do
+      s = s .. "  " .. tostring(value) .. "\n"
+    end
     
-    search = function(self, s)
-      local p = self
-      
-      while p do
-        local c = s:sub(1, 1)
-        
-        if c < p.splitchar then
-          p = p.left
-        elseif c == p.splitchar then
-          s = s:sub(2)
-          if s == "" then
-            if p.value then return p.value end
-            break
-          end
-          
-          p = p.middle
-        else
-          p = p.right
-        end
-      end
-      
-      return nil
-    end,
+    return s
+  end,
+}
+
+function TernarySearchTree:new(ch)
+  return setmetatable({splitchar = ch}, TernarySearchTree_mt)
+end
+
+function TernarySearchTree:add(key, value)
+  return self:insert(self, key, value)
+end
     
-    prefix_search = function(self, s)
-      local p = self
-      
-      while p do
-        local c = s:sub(1, 1)
-        
-        if c < p.splitchar then
-          p = p.left
-        elseif c == p.splitchar then
-          s = s:sub(2)
-          if s == "" then
-            --return as_list(p)
-            return coroutine.wrap(function() as_list(p) end)
-          end
-          
-          p = p.middle
-        else
-          p = p.right
-        end
-      end
-      
-      --return {}
-      return coroutine.wrap(function() yield(nil) end)
-    end,
-  }
+function TernarySearchTree:insert(p, key, value)
+  local c = key:sub(1, 1)
   
-  -- convenience methods
-  setmetatable(object, {
-    __tostring = function(t)
-      local p = t
-      local s = ""
-      
-      if p == nil then return "<empty table>" end
-      
-      for value in coroutine.wrap(function() as_list(p) end) do
-        s = s .. "  " .. tostring(value) .. "\n"
+  if p == nil then
+    p = TernarySearchTree:new(c)
+  elseif p.splitchar == nil then
+    p.splitchar = c
+  end
+  
+  if c < p.splitchar then
+    p.left = self:insert(p.left, key, value)
+  elseif c == p.splitchar then
+    key = key:sub(2)
+    if key ~= "" then
+      p.middle = self:insert(p.middle, key, value)
+    else
+      p.value = value
+    end
+  else
+    p.right = self:insert(p.right, key, value)
+  end
+  
+  return p
+end
+    
+function TernarySearchTree:search(s)
+  local p = self
+  
+  while p do
+    local c = s:sub(1, 1)
+    
+    if c < p.splitchar then
+      p = p.left
+    elseif c == p.splitchar then
+      s = s:sub(2)
+      if s == "" then
+        if p.value then return p.value end
+        break
       end
       
-      return s
-    end,
-  })
+      p = p.middle
+    else
+      p = p.right
+    end
+  end
   
-  return object
+  return nil
+end
+    
+function TernarySearchTree:prefix_search(s)
+  local p = self
+  
+  while p do
+    local c = s:sub(1, 1)
+    
+    if c < p.splitchar then
+      p = p.left
+    elseif c == p.splitchar then
+      s = s:sub(2)
+      if s == "" then
+        --return as_list(p)
+        return coroutine.wrap(function() as_list(p) end)
+      end
+      
+      p = p.middle
+    else
+      p = p.right
+    end
+  end
+  
+  --return {}
+  return coroutine.wrap(function() yield(nil) end)
 end
